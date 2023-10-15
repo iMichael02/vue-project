@@ -1,0 +1,32 @@
+{
+  "todos": [
+    {
+      "id": 0,
+      "name": "Learn TypeScript",
+      "done": true,
+      "deleted": false
+    },
+    {
+      "id": 1,
+      "name": "Learn VueJS",
+      "done": false,
+      "deleted": false
+    },
+    {
+      "id": 2,
+      "name": "Learn Golang",
+      "done": false,
+      "deleted": false
+    },
+    {
+      "id": 3,
+      "name": "Learn Ruby",
+      "done": false
+    },
+    {
+      "id": 4,
+      "name": "Learn Python",
+      "done": false
+    }
+  ]
+}
