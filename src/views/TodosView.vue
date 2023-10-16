@@ -1,6 +1,6 @@
 <template>
   <div class="todos d-flex align-center flex-column h-screen">
-    <h1 class="pt-10">🧾 Todos</h1>
+    <h1 class="pt-6">🧾 Todos</h1>
     <div
       class="d-flex justify-center align-center px-16 pb-16 pt-5 flex-column"
       v-if="loggedIn"
