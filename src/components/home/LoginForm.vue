@@ -46,7 +46,7 @@ import { defineComponent, ref } from "vue";
 export default defineComponent({
   name: "LoginForm",
   props: {
-    registerChosen: Boolean,
+    loginChosen: Boolean,
     username: String,
     password: String,
     back: Function,
