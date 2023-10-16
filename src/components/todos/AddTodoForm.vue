@@ -29,7 +29,8 @@ export default defineComponent({
   props: {
     newId: Number,
   },
-  setup(props) {
+  emits: ["load-todos"],
+  setup(props, emits) {
     const name = ref("");
     const data = ref({});
     const addTodo = () => {
@@ -37,6 +38,7 @@ export default defineComponent({
         id: props.newId,
         name: name.value,
         done: false,
+        deleted: false,
       };
       console.log(JSON.stringify(data.value));
       fetch("http://localhost:3000/todos", {
@@ -46,6 +48,7 @@ export default defineComponent({
         method: "POST",
         body: JSON.stringify(data.value),
       });
+      emits.emit("load-todos");
     };
     return { name, addTodo };
   },

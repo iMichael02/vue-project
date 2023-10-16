@@ -9,6 +9,7 @@
               v-if="todo.done"
               v-model="todo.done"
               color="teal-darken-3"
+              @update:model-value="updateTodo(todo)"
             >
               <template v-slot:label>
                 <span
@@ -23,6 +24,7 @@
               v-else
               v-model="todo.done"
               color="black"
+              @update:model-value="updateTodo(todo)"
             >
               <template v-slot:label>
                 <span class="text-h6">{{ todo.name }}</span>
@@ -51,30 +53,38 @@
         :length="length"
         rounded="circle"
         class="pagination"
-        @update:model-value="updatePage"
       ></v-pagination>
     </div>
     <h3 v-else>No Todos Found</h3>
-    <v-btn
-      @click="showTodoForm = true"
-      prepend-icon="mdi-plus"
-      class="rounded-xl ml-5 mb-5"
-    >
-      Add More Todo
-    </v-btn>
+    <div class="d-flex justify-center align-center">
+      <v-btn
+        @click="showTodoForm = true"
+        prepend-icon="mdi-plus"
+        class="rounded-xl ma-5"
+      >
+        Add More Todo
+      </v-btn>
+      <v-checkbox
+        v-model="showCompleted"
+        density="compact"
+        label="Show Completed"
+        class="d-inline-flex flex-row-reverse mr-5"
+        @update:model-value="loadTodos"
+      ></v-checkbox>
+    </div>
     <v-overlay
       v-model="showTodoForm"
       contained
       class="align-center justify-center"
     >
-      <AddTodoForm :new-id="newId" />
+      <AddTodoForm :new-id="newId" @load-todos="loadTodos" />
     </v-overlay>
     <v-overlay
       v-model="showEditForm"
       contained
       class="align-center justify-center"
     >
-      <EditTodoForm :todo="todoItem" />
+      <EditTodoForm :todo="todoItem" @load-todos="loadTodos" />
     </v-overlay>
   </v-sheet>
 </template>
@@ -84,6 +94,7 @@ import { onMounted } from "vue";
 import { defineComponent, ref } from "vue";
 import AddTodoForm from "./AddTodoForm.vue";
 import EditTodoForm from "./EditTodoForm.vue";
+import { computed } from "vue";
 export default defineComponent({
   name: "TodosList",
   setup() {
@@ -92,29 +103,39 @@ export default defineComponent({
     const todoItem = ref();
     const showTodoForm = ref(false);
     const showEditForm = ref(false);
-    const displayedTodos = ref([{ id: Number, name: String, done: Boolean }]);
+    const showCompleted = ref(false);
+    const filteredTodos = computed(() => {
+      return showCompleted.value
+        ? todos.value
+        : todos.value.filter((todo) => !todo.done);
+    });
+    const displayedTodos = computed(() => {
+      let todosCopy = filteredTodos.value.slice();
+      let pageIndex = page.value > 0 ? page.value : 1;
+      let start = (pageIndex - 1) * 4;
+      let end = pageIndex * 4;
+      return todosCopy.splice(start, end);
+    });
     const page = ref(1);
-    const length = ref(0);
+    const length = computed(() => {
+      return Math.ceil(filteredTodos.value.length / 4);
+    });
     const newId = ref();
-    onMounted(async () => {
+    onMounted(() => {
+      loadTodos();
+    });
+    const loadTodos = async () => {
       await fetch("http://localhost:3000/todos")
         .then((res) => res.json())
         .then((data) => {
           todos.value = data;
           todosLoaded.value = true;
-          length.value = Math.ceil(todos.value.length / 4);
-          updatePage(page.value);
           newId.value = findNewId();
         })
         .catch((err) => console.log(err.message));
-    });
-    const updatePage = (pageIndex: number) => {
-      console.log(pageIndex);
-      console.log(todos.value);
-      let todosCopy = todos.value.slice();
-      let start = (pageIndex - 1) * 4;
-      let end = pageIndex * 4;
-      displayedTodos.value = todosCopy.splice(start, end);
+      if (displayedTodos.value.length === 0) {
+        page.value--;
+      }
     };
     const findNewId = () => {
       let max = Number(todos.value[0].id);
@@ -125,6 +146,23 @@ export default defineComponent({
       }
       return max + 1;
     };
+    const data = ref({});
+    const updateTodo = async (todo: any) => {
+      data.value = {
+        id: todo.id,
+        name: todo.name,
+        done: todo.done,
+        deleted: todo.deleted,
+      };
+      await fetch(`http://localhost:3000/todos/${todo.id}`, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        method: "PUT",
+        body: JSON.stringify(data.value),
+      });
+      loadTodos();
+    };
     const removeTodo = async (todo: any) => {
       todos.value = todos.value.filter((t) => t !== todo);
       await fetch(`http://localhost:3000/todos/${todo.id}`, {
@@ -133,6 +171,7 @@ export default defineComponent({
         },
         method: "DELETE",
       });
+      loadTodos();
     };
     return {
       todos,
@@ -140,11 +179,14 @@ export default defineComponent({
       todoItem,
       showTodoForm,
       showEditForm,
+      showCompleted,
+      filteredTodos,
       displayedTodos,
       page,
       length,
       newId,
-      updatePage,
+      loadTodos,
+      updateTodo,
       removeTodo,
     };
   },
