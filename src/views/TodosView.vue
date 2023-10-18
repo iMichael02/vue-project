@@ -1,8 +1,8 @@
 <template>
-  <div class="todos d-flex align-center flex-column h-screen">
+  <div class="todos d-flex align-center flex-column">
     <h1 class="pt-6">🧾 Todos</h1>
     <div
-      class="d-flex justify-center align-center px-16 pb-16 pt-5 flex-column"
+      class="d-flex justify-center align-center px-16 pt-5 flex-column"
       v-if="loggedIn"
     >
       <TodosList />
@@ -33,6 +33,9 @@ import { mapGetters, mapMutations } from "vuex";
 import TodosList from "@/components/todos/TodosList.vue";
 export default defineComponent({
   name: "TodosView",
+  props: {
+    todos: Array<object>,
+  },
   computed: {
     ...mapGetters(["loggedIn", "str"]),
   },
