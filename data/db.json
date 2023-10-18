@@ -7,26 +7,56 @@
       "deleted": false
     },
     {
-      "id": 1,
-      "name": "Learn VueJS",
-      "done": false,
-      "deleted": false
-    },
-    {
       "id": 2,
       "name": "Learn Golang",
-      "done": false,
-      "deleted": false
-    },
-    {
-      "id": 3,
-      "name": "Learn Ruby",
-      "done": false,
+      "done": true,
       "deleted": false
     },
     {
       "id": 4,
       "name": "Learn Python",
+      "done": true,
+      "deleted": false
+    },
+    {
+      "id": 5,
+      "name": "Learn Ruby",
+      "done": false,
+      "deleted": false
+    },
+    {
+      "id": 6,
+      "name": "Learn Ruby",
+      "done": false,
+      "deleted": false
+    },
+    {
+      "id": 7,
+      "name": "Learn Ruby",
+      "done": true,
+      "deleted": false
+    },
+    {
+      "id": 8,
+      "name": "Learn Rust",
+      "done": false,
+      "deleted": false
+    },
+    {
+      "id": 9,
+      "name": "Learn Ruby",
+      "done": true,
+      "deleted": false
+    },
+    {
+      "id": 10,
+      "name": "7",
+      "done": false,
+      "deleted": false
+    },
+    {
+      "id": 11,
+      "name": "asd",
       "done": false,
       "deleted": false
     }
