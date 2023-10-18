@@ -1,15 +1,16 @@
 <template>
-  <v-sheet class="bg-grey-lighten-2 rounded-xl" width="500">
+  <v-sheet class="bg-grey-lighten-2 rounded-xl" width="500" height="550">
     <div v-if="todosLoaded">
       <v-list lines="one" class="bg-grey-lighten-2 rounded-xl">
         <v-list-item v-for="todo in displayedTodos" :key="todo.id" class="px-5">
-          <v-card class="d-flex align-center px-3 my-2">
+          <v-card class="d-flex align-center px-3 my-2 py-3">
             <v-checkbox
               density="compact"
+              hide-details="auto"
               v-if="todo.done"
               v-model="todo.done"
               color="teal-darken-3"
-              @update:model-value="updateTodo(todo)"
+              @update:model-value="handleCompletedTask(todo)"
             >
               <template v-slot:label>
                 <span
@@ -21,10 +22,11 @@
             </v-checkbox>
             <v-checkbox
               density="compact"
+              hide-details="auto"
               v-else
               v-model="todo.done"
               color="black"
-              @update:model-value="updateTodo(todo)"
+              @update:model-value="handleCompletedTask(todo)"
             >
               <template v-slot:label>
                 <span class="text-h6">{{ todo.name }}</span>
@@ -37,12 +39,12 @@
                   todoItem = todo;
                 }
               "
-              class="ml-3 mb-4 text-h7 bg-grey-lighten-5"
+              class="ml-3 text-h7 bg-grey-lighten-5"
               icon="mdi-pencil"
             ></v-btn>
             <v-btn
               @click="removeTodo(todo)"
-              class="ml-3 mb-4 text-h7 bg-grey-lighten-5"
+              class="ml-3 text-h7 bg-grey-lighten-5"
               icon="mdi-trash-can"
             ></v-btn>
           </v-card>
@@ -132,7 +134,10 @@ export default defineComponent({
           todosLoaded.value = true;
           newId.value = findNewId();
         })
-        .catch((err) => console.log(err.message));
+        .catch((err) => {
+          console.log("Error while executing loadTodos():");
+          console.log(err.message)
+        });
       if (displayedTodos.value.length === 0) {
         page.value--;
       }
@@ -147,7 +152,7 @@ export default defineComponent({
       return max + 1;
     };
     const data = ref({});
-    const updateTodo = async (todo: any) => {
+    const handleCompletedTask = async (todo: any) => {
       data.value = {
         id: todo.id,
         name: todo.name,
@@ -160,6 +165,9 @@ export default defineComponent({
         },
         method: "PUT",
         body: JSON.stringify(data.value),
+      }).catch((err) => {
+        console.log("Error while executing handleCompletedTask():");
+        console.log(err.message);
       });
       loadTodos();
     };
@@ -170,6 +178,9 @@ export default defineComponent({
           "Content-Type": "application/json",
         },
         method: "DELETE",
+      }).catch((err) => {
+        console.log("Error while executing removeTodo():");
+        console.log(err.message);
       });
       loadTodos();
     };
@@ -186,7 +197,7 @@ export default defineComponent({
       length,
       newId,
       loadTodos,
-      updateTodo,
+      handleCompletedTask,
       removeTodo,
     };
   },

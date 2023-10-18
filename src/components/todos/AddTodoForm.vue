@@ -32,21 +32,21 @@ export default defineComponent({
   emits: ["load-todos"],
   setup(props, emits) {
     const name = ref("");
-    const data = ref({});
     const addTodo = () => {
-      data.value = {
-        id: props.newId,
-        name: name.value,
-        done: false,
-        deleted: false,
-      };
-      console.log(JSON.stringify(data.value));
       fetch("http://localhost:3000/todos", {
         headers: {
           "Content-Type": "application/json",
         },
         method: "POST",
-        body: JSON.stringify(data.value),
+        body: JSON.stringify({
+          id: props.newId,
+          name: name.value,
+          done: false,
+          deleted: false,
+        }),
+      }).catch((err) => {
+        console.log("Error while executing addTodo():");
+        console.log(err.message);
       });
       emits.emit("load-todos");
     };

@@ -5,7 +5,7 @@
       width="400"
     >
       <h3>Todo #{{ todo.id }}</h3>
-      <form action="" @submit.prevent="saveTodo()">
+      <form @submit.prevent="saveTodo()">
         <v-card>
           <v-text-field
             v-model="name"
@@ -34,21 +34,22 @@ export default defineComponent({
   },
   emits: ["load-todos"],
   setup(props, emits) {
-    const name = ref("");
-    const data = ref({});
+    const name = ref(props.todo.name);
     const saveTodo = async () => {
-      data.value = {
-        id: props.todo.id,
-        name: name.value,
-        done: props.todo.done,
-        deleted: props.todo.deleted,
-      };
       await fetch(`http://localhost:3000/todos/${props.todo.id}`, {
         headers: {
           "Content-Type": "application/json",
         },
         method: "PUT",
-        body: JSON.stringify(data.value),
+        body: JSON.stringify({
+          id: props.todo.id,
+          name: name.value,
+          done: props.todo.done,
+          deleted: props.todo.deleted,
+        }),
+      }).catch((err) => {
+        console.log("Error while executing saveTodo():");
+        console.log(err.message);
       });
       emits.emit("load-todos");
     };
