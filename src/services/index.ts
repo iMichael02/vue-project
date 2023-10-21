@@ -1,11 +1,6 @@
-import createData from "./dataInteractions/createData";
-import deleteData from "./dataInteractions/deleteData";
-import loadData from "./dataInteractions/loadData";
-import updateData from "./dataInteractions/updateData";
+import createData from "./hooks/createData";
+import deleteData from "./hooks/deleteData";
+import loadData from "./hooks/loadData";
+import updateData from "./hooks/updateData";
 
-export {
-  createData,
-  deleteData,
-  loadData,
-  updateData,
-}
+export { createData, deleteData, loadData, updateData };
