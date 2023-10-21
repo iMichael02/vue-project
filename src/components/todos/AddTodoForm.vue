@@ -5,7 +5,7 @@
       width="400"
     >
       <h3>Todo #{{ newId }}</h3>
-      <form action="" @submit.prevent="addTodo">
+      <form action="" @submit.prevent="newTodo">
         <v-card>
           <v-text-field
             v-model="name"
@@ -24,33 +24,44 @@
 
 <script lang="ts">
 import { defineComponent, ref } from "vue";
+import { Todo } from "@/models/Todo";
+import { AddTodoFormPresenter } from "@/presenters/AddTodoFormPresenter";
 export default defineComponent({
   name: "AddTodoForm",
   props: {
-    newId: Number,
+    newId: {
+      type: Number,
+      required: true,
+    },
+    todos: {
+      type: Array<{ id: number; name: string; done: boolean }>,
+      required: true,
+    },
   },
-  emits: ["load-todos"],
-  setup(props, emits) {
+  emits: ["update:todos"],
+  setup() {
     const name = ref("");
-    const addTodo = () => {
-      fetch("http://localhost:3000/todos", {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        method: "POST",
-        body: JSON.stringify({
-          id: props.newId,
-          name: name.value,
-          done: false,
-          deleted: false,
-        }),
-      }).catch((err) => {
-        console.log("Error while executing addTodo():");
-        console.log(err.message);
-      });
-      emits.emit("load-todos");
-    };
-    return { name, addTodo };
+    const presenter = ref();
+    return { name, presenter };
+  },
+  mounted() {
+    this.presenter = new AddTodoFormPresenter(this, this.todo);
+  },
+  computed: {
+    todo(): Todo {
+      return new Todo(this.newId, this.name, false);
+    },
+  },
+  watch: {
+    todo() {
+      this.presenter.setModel(this.todo);
+    },
+  },
+  methods: {
+    newTodo() {
+      this.presenter.newTodo();
+      this.$emit("update:todos", this.todos);
+    },
   },
 });
 </script>

@@ -1,55 +1,61 @@
 <template>
   <v-sheet class="bg-grey-lighten-2 rounded-xl" width="500" height="550">
     <div v-if="todosLoaded">
-      <v-list lines="one" class="bg-grey-lighten-2 rounded-xl">
-        <v-list-item v-for="todo in displayedTodos" :key="todo.id" class="px-5">
-          <v-card class="d-flex align-center px-3 my-2 py-3">
-            <v-checkbox
-              density="compact"
-              hide-details="auto"
-              v-if="todo.done"
-              v-model="todo.done"
-              color="teal-darken-3"
-              @update:model-value="handleCompletedTask(todo)"
-            >
-              <template v-slot:label>
-                <span
-                  class="text-h6 text-decoration-line-through text-teal-darken-2"
-                >
-                  {{ todo.name }}
-                </span>
-              </template>
-            </v-checkbox>
-            <v-checkbox
-              density="compact"
-              hide-details="auto"
-              v-else
-              v-model="todo.done"
-              color="black"
-              @update:model-value="handleCompletedTask(todo)"
-            >
-              <template v-slot:label>
-                <span class="text-h6">{{ todo.name }}</span>
-              </template>
-            </v-checkbox>
-            <v-btn
-              @click="
-                {
-                  showEditForm = true;
-                  todoItem = todo;
-                }
-              "
-              class="ml-3 text-h7 bg-grey-lighten-5"
-              icon="mdi-pencil"
-            ></v-btn>
-            <v-btn
-              @click="removeTodo(todo)"
-              class="ml-3 text-h7 bg-grey-lighten-5"
-              icon="mdi-trash-can"
-            ></v-btn>
-          </v-card>
-        </v-list-item>
-      </v-list>
+      <v-sheet class="bg-grey-lighten-2 rounded-xl" height="400">
+        <v-list lines="one" class="bg-grey-lighten-2 rounded-xl">
+          <v-list-item
+            v-for="todo in displayedTodos"
+            :key="todo.id"
+            class="px-5"
+          >
+            <v-card class="d-flex align-center px-3 my-2 py-3">
+              <v-checkbox
+                density="compact"
+                hide-details="auto"
+                v-if="todo.done"
+                v-model="todo.done"
+                color="teal-darken-3"
+                @update:model-value="handleCompletedTodo(todo)"
+              >
+                <template v-slot:label>
+                  <span
+                    class="text-h6 text-decoration-line-through text-teal-darken-2"
+                  >
+                    {{ todo.name }}
+                  </span>
+                </template>
+              </v-checkbox>
+              <v-checkbox
+                density="compact"
+                hide-details="auto"
+                v-else
+                v-model="todo.done"
+                color="black"
+                @update:model-value="handleCompletedTodo(todo)"
+              >
+                <template v-slot:label>
+                  <span class="text-h6">{{ todo.name }}</span>
+                </template>
+              </v-checkbox>
+              <v-btn
+                @click="
+                  {
+                    showEditForm = true;
+                    todoItem = todo;
+                  }
+                "
+                class="ml-3 text-h7 bg-grey-lighten-5"
+                icon="mdi-pencil"
+              ></v-btn>
+              <v-btn
+                @click="handleDeletedTodo(todo)"
+                class="ml-3 text-h7 bg-grey-lighten-5"
+                icon="mdi-trash-can"
+              ></v-btn>
+            </v-card>
+          </v-list-item>
+        </v-list>
+      </v-sheet>
       <v-pagination
         v-model="page"
         :length="length"
@@ -57,7 +63,7 @@
         class="pagination"
       ></v-pagination>
     </div>
-    <h3 v-else>No Todos Found</h3>
+    <v-sheet class="bg-grey-lighten-2 rounded-xl" height="400" v-else></v-sheet>
     <div class="d-flex justify-center align-center">
       <v-btn
         @click="showTodoForm = true"
@@ -71,7 +77,6 @@
         density="compact"
         label="Show Completed"
         class="d-inline-flex flex-row-reverse mr-5"
-        @update:model-value="loadTodos"
       ></v-checkbox>
     </div>
     <v-overlay
@@ -79,126 +84,82 @@
       contained
       class="align-center justify-center"
     >
-      <AddTodoForm :new-id="newId" @load-todos="loadTodos" />
+      <AddTodoForm :new-id="newId" v-model:todos="todos" />
     </v-overlay>
     <v-overlay
       v-model="showEditForm"
       contained
       class="align-center justify-center"
     >
-      <EditTodoForm :todo="todoItem" @load-todos="loadTodos" />
+      <EditTodoForm
+        :todo="todoItem"
+        v-model:todos="todos"
+        :index="todos.indexOf(todoItem)"
+      />
     </v-overlay>
   </v-sheet>
 </template>
 
 <script lang="ts">
-import { onMounted } from "vue";
-import { defineComponent, ref } from "vue";
+import { defineComponent, ref, getCurrentInstance } from "vue";
 import AddTodoForm from "./AddTodoForm.vue";
 import EditTodoForm from "./EditTodoForm.vue";
+import { TodosListPresenter } from "@/presenters/TodosListPresenter";
+import { ComponentPublicInstance } from "vue";
+import { ITodoList } from "@/interfaces/ITodoList";
+import { onMounted } from "vue";
 import { computed } from "vue";
 export default defineComponent({
   name: "TodosList",
   setup() {
-    const todos = ref([{ id: Number, name: String, done: Boolean }]);
+    const todos = ref();
+    const presenter = new TodosListPresenter(
+      getCurrentInstance()?.proxy as ComponentPublicInstance<ITodoList>
+    );
     const todosLoaded = ref(false);
     const todoItem = ref();
+    const filteredTodos = computed(() => {
+      return presenter.getFilteredTodos();
+    });
+    const displayedTodos = computed(() => {
+      return presenter.getDisplayedTodos();
+    });
+    const length = computed(() => {
+      return presenter.calcLength();
+    });
     const showTodoForm = ref(false);
     const showEditForm = ref(false);
     const showCompleted = ref(false);
-    const filteredTodos = computed(() => {
-      return showCompleted.value
-        ? todos.value
-        : todos.value.filter((todo) => !todo.done);
-    });
-    const displayedTodos = computed(() => {
-      let todosCopy = filteredTodos.value.slice();
-      let pageIndex = page.value > 0 ? page.value : 1;
-      let start = (pageIndex - 1) * 4;
-      let end = pageIndex * 4;
-      return todosCopy.splice(start, end);
-    });
     const page = ref(1);
-    const length = computed(() => {
-      return Math.ceil(filteredTodos.value.length / 4);
-    });
     const newId = ref();
     onMounted(() => {
-      loadTodos();
+      loadDataToView();
     });
-    const loadTodos = async () => {
-      await fetch("http://localhost:3000/todos")
-        .then((res) => res.json())
-        .then((data) => {
-          todos.value = data;
-          todosLoaded.value = true;
-          newId.value = findNewId();
-        })
-        .catch((err) => {
-          console.log("Error while executing loadTodos():");
-          console.log(err.message)
-        });
-      if (displayedTodos.value.length === 0) {
-        page.value--;
-      }
+    const loadDataToView = () => {
+      presenter.loadDataToView();
     };
-    const findNewId = () => {
-      let max = Number(todos.value[0].id);
-      for (let i = 0; i < todos.value.length - 1; i++) {
-        if (todos.value[i].id < todos.value[i + 1].id) {
-          max = Number(todos.value[i + 1].id);
-        }
-      }
-      return max + 1;
+    const handleCompletedTodo = (todo: object) => {
+      presenter.todoCompleted(todo);
     };
-    const data = ref({});
-    const handleCompletedTask = async (todo: any) => {
-      data.value = {
-        id: todo.id,
-        name: todo.name,
-        done: todo.done,
-        deleted: todo.deleted,
-      };
-      await fetch(`http://localhost:3000/todos/${todo.id}`, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        method: "PUT",
-        body: JSON.stringify(data.value),
-      }).catch((err) => {
-        console.log("Error while executing handleCompletedTask():");
-        console.log(err.message);
-      });
-      loadTodos();
-    };
-    const removeTodo = async (todo: any) => {
-      todos.value = todos.value.filter((t) => t !== todo);
-      await fetch(`http://localhost:3000/todos/${todo.id}`, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        method: "DELETE",
-      }).catch((err) => {
-        console.log("Error while executing removeTodo():");
-        console.log(err.message);
-      });
-      loadTodos();
+    const handleDeletedTodo = (todo: object) => {
+      presenter.removeTodo(todo);
     };
     return {
+      presenter,
       todos,
       todosLoaded,
       todoItem,
+      filteredTodos,
+      displayedTodos,
+      length,
       showTodoForm,
       showEditForm,
       showCompleted,
-      filteredTodos,
-      displayedTodos,
       page,
-      length,
       newId,
-      loadTodos,
-      handleCompletedTask,
-      removeTodo,
+      loadDataToView,
+      handleCompletedTodo,
+      handleDeletedTodo,
     };
   },
   components: { AddTodoForm, EditTodoForm },

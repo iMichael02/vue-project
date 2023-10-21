@@ -12,18 +12,18 @@
       >
         <div class="field w-100">
           <v-text-field
+            v-model="username"
             label="Username"
             hint="Enter your username"
-            @input="changeUsername"
             id="username"
           />
         </div>
         <div class="field">
           <v-text-field
+            v-model="password"
             label="Password"
             type="password"
             hint="Enter your password"
-            @input="changePassword"
             id="password"
           />
         </div>
@@ -43,39 +43,38 @@
 <script lang="ts">
 import { mapMutations } from "vuex";
 import { defineComponent, ref } from "vue";
+import { LoginFormPresenter } from "@/presenters/LoginFormPresenter";
 export default defineComponent({
   name: "LoginForm",
   props: {
     loginChosen: Boolean,
-    username: String,
-    password: String,
     back: Function,
     loginSuccess: Boolean,
   },
   setup() {
-    const usernameInput = ref("");
-    const passwordInput = ref("");
-    const changeUsername = (e: InputEvent) => {
-      let inputElement = e.target as HTMLInputElement;
-      usernameInput.value = inputElement.value;
-    };
-    const changePassword = (e: InputEvent) => {
-      let inputElement = e.target as HTMLInputElement;
-      passwordInput.value = inputElement.value;
-    };
+    const presenter = ref();
+    const id = ref("");
+    const username = ref("");
+    const password = ref("");
     return {
-      usernameInput,
-      passwordInput,
-      changeUsername,
-      changePassword,
+      presenter,
+      id,
+      username,
+      password,
     };
+  },
+  mounted() {
+    this.presenter = new LoginFormPresenter(this);
+  },
+  watch: {
+    username() {
+      console.log(this.username);
+    },
   },
   methods: {
     ...mapMutations(["login"]),
     onSubmit(e: Event) {
       e.preventDefault();
-      this.$emit("update:username", this.usernameInput);
-      this.$emit("update:password", this.passwordInput);
       this.$emit("update:login-success", true);
       this.$emit("update:login-chosen", false);
       this.login();
