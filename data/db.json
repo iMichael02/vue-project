@@ -49,16 +49,31 @@
       "deleted": false
     },
     {
-      "id": 10,
-      "name": "7",
-      "done": false,
-      "deleted": false
+      "id": 12,
+      "name": "Learn C",
+      "done": false
     },
     {
-      "id": 11,
-      "name": "asd",
-      "done": false,
-      "deleted": false
+      "id": 13,
+      "name": "Learn C#",
+      "done": false
+    },
+    {
+      "id": 14,
+      "name": "Learn C#",
+      "done": true
+    }
+  ],
+  "user": [
+    {
+      "id": 0,
+      "username": "mikesov",
+      "password": "123456"
+    },
+    {
+      "id": 1,
+      "username": "infantannihilator",
+      "password": "123456"
     }
   ]
 }
