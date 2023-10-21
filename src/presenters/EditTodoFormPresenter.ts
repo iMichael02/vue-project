@@ -8,9 +8,9 @@ export class EditTodoFormPresenter {
   }
   public updateTodo() {
     this.view.todos[this.view.index] = {
-      id: this.view.model.getId(),
-      name: this.view.model.getName(),
-      done: this.view.model.getDone(),
+      id: this.model.getId(),
+      name: this.model.getName(),
+      done: this.model.getDone(),
     };
     this.model.updateTodo();
   }

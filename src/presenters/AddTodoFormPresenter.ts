@@ -8,9 +8,9 @@ export class AddTodoFormPresenter {
   }
   public newTodo() {
     this.view.todos.push({
-      id: this.view.todo.getId(),
-      name: this.view.todo.getName(),
-      done: this.view.todo.getDone(),
+      id: this.model.getId(),
+      name: this.model.getName(),
+      done: this.model.getDone(),
     });
     this.model.createTodo();
   }

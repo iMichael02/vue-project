@@ -12,6 +12,7 @@
             label="Name"
             hint="Enter todo name"
             id="name"
+            @update:model-value="nameChange"
           />
         </v-card>
         <div class="d-flex justify-center align-center mt-5">
@@ -26,6 +27,9 @@
 import { defineComponent, ref } from "vue";
 import { Todo } from "@/models/Todo";
 import { AddTodoFormPresenter } from "@/presenters/AddTodoFormPresenter";
+import { getCurrentInstance } from "vue";
+import { ComponentPublicInstance } from "vue";
+import { IAddTodoForm } from "@/interfaces/IAddTodoForm";
 export default defineComponent({
   name: "AddTodoForm",
   props: {
@@ -39,29 +43,20 @@ export default defineComponent({
     },
   },
   emits: ["update:todos"],
-  setup() {
+  setup(props, context) {
     const name = ref("");
-    const presenter = ref();
-    return { name, presenter };
-  },
-  mounted() {
-    this.presenter = new AddTodoFormPresenter(this, this.todo);
-  },
-  computed: {
-    todo(): Todo {
-      return new Todo(this.newId, this.name, false);
-    },
-  },
-  watch: {
-    todo() {
-      this.presenter.setModel(this.todo);
-    },
-  },
-  methods: {
-    newTodo() {
-      this.presenter.newTodo();
-      this.$emit("update:todos", this.todos);
-    },
+    const presenter = new AddTodoFormPresenter(
+      getCurrentInstance()?.proxy as ComponentPublicInstance<IAddTodoForm>,
+      new Todo(props.newId, name.value, false)
+    );
+    const nameChange = () => {
+      presenter.setModel(new Todo(props.newId, name.value, false));
+    };
+    const newTodo = () => {
+      presenter.newTodo();
+      context.emit("update:todos", props.todos);
+    };
+    return { name, presenter, nameChange, newTodo };
   },
 });
 </script>

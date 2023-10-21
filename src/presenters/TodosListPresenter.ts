@@ -15,10 +15,18 @@ export class TodosListPresenter {
           this.view.todos = returnData;
           this.view.todosLoaded = true;
           this.view.newId = this.findNewId();
+          this.handleChanges();
         }
       );
     } catch (error) {
       console.log(error);
+    }
+  }
+  public handleChanges(showForm = false) {
+    if (!showForm) {
+      this.view.filteredTodos = this.getFilteredTodos();
+      this.view.displayedTodos = this.getDisplayedTodos();
+      this.view.length = this.calcLength();
     }
   }
   public getFilteredTodos(): Array<{
@@ -57,6 +65,7 @@ export class TodosListPresenter {
     this.setModel(todo);
     if (this.model) {
       this.model.updateTodo();
+      this.handleChanges();
     } else {
       console.log("Fail to execute: TodoListPresenter.todoCompleted()");
     }
@@ -66,6 +75,7 @@ export class TodosListPresenter {
     if (this.model) {
       this.view.todos = this.view.todos.filter((t: any) => t !== todo);
       this.model.deleteTodo();
+      this.handleChanges();
     } else {
       console.log("Fail to execute: TodoListPresenter.removeTodo()");
     }

@@ -61,6 +61,7 @@
         :length="length"
         rounded="circle"
         class="pagination"
+        @update:model-value="pageChange()"
       ></v-pagination>
     </div>
     <v-sheet class="bg-grey-lighten-2 rounded-xl" height="400" v-else></v-sheet>
@@ -83,6 +84,7 @@
       v-model="showTodoForm"
       contained
       class="align-center justify-center"
+      @update:model-value="handleAddTodo"
     >
       <AddTodoForm :new-id="newId" v-model:todos="todos" />
     </v-overlay>
@@ -90,6 +92,7 @@
       v-model="showEditForm"
       contained
       class="align-center justify-center"
+      @update:model-value="handleEditTodo"
     >
       <EditTodoForm
         :todo="todoItem"
@@ -108,7 +111,6 @@ import { TodosListPresenter } from "@/presenters/TodosListPresenter";
 import { ComponentPublicInstance } from "vue";
 import { ITodoList } from "@/interfaces/ITodoList";
 import { onMounted } from "vue";
-import { computed } from "vue";
 export default defineComponent({
   name: "TodosList",
   setup() {
@@ -118,15 +120,9 @@ export default defineComponent({
     );
     const todosLoaded = ref(false);
     const todoItem = ref();
-    const filteredTodos = computed(() => {
-      return presenter.getFilteredTodos();
-    });
-    const displayedTodos = computed(() => {
-      return presenter.getDisplayedTodos();
-    });
-    const length = computed(() => {
-      return presenter.calcLength();
-    });
+    const filteredTodos = ref();
+    const displayedTodos = ref();
+    const length = ref();
     const showTodoForm = ref(false);
     const showEditForm = ref(false);
     const showCompleted = ref(false);
@@ -135,8 +131,17 @@ export default defineComponent({
     onMounted(() => {
       loadDataToView();
     });
+    const pageChange = () => {
+      presenter.handleChanges();
+    };
     const loadDataToView = () => {
       presenter.loadDataToView();
+    };
+    const handleAddTodo = () => {
+      presenter.handleChanges(showTodoForm.value);
+    };
+    const handleEditTodo = () => {
+      presenter.handleChanges(showEditForm.value);
     };
     const handleCompletedTodo = (todo: object) => {
       presenter.todoCompleted(todo);
@@ -158,6 +163,9 @@ export default defineComponent({
       page,
       newId,
       loadDataToView,
+      pageChange,
+      handleAddTodo,
+      handleEditTodo,
       handleCompletedTodo,
       handleDeletedTodo,
     };
