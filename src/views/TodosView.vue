@@ -30,12 +30,9 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { mapGetters, mapMutations } from "vuex";
-import TodosList from "@/components/todos/TodosList.vue";
+import { TodosList } from "@/components";
 export default defineComponent({
   name: "TodosView",
-  props: {
-    todos: Array<object>,
-  },
   computed: {
     ...mapGetters(["loggedIn", "str"]),
   },
