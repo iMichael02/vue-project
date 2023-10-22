@@ -44,6 +44,9 @@
 import { mapMutations } from "vuex";
 import { defineComponent, ref } from "vue";
 import { LoginFormPresenter } from "@/presenters/LoginFormPresenter";
+import { getCurrentInstance } from "vue";
+import { ComponentPublicInstance } from "vue";
+import { ILoginForm } from "@/interfaces/ILoginForm";
 export default defineComponent({
   name: "LoginForm",
   props: {
@@ -52,7 +55,9 @@ export default defineComponent({
     loginSuccess: Boolean,
   },
   setup() {
-    const presenter = ref();
+    const presenter = new LoginFormPresenter(
+      getCurrentInstance()?.proxy as ComponentPublicInstance<ILoginForm>
+    );
     const id = ref("");
     const username = ref("");
     const password = ref("");
@@ -62,14 +67,6 @@ export default defineComponent({
       username,
       password,
     };
-  },
-  mounted() {
-    this.presenter = new LoginFormPresenter(this);
-  },
-  watch: {
-    username() {
-      console.log(this.username);
-    },
   },
   methods: {
     ...mapMutations(["login"]),
