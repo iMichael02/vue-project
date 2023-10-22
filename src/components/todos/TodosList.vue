@@ -78,6 +78,7 @@
         density="compact"
         label="Show Completed"
         class="d-inline-flex flex-row-reverse mr-5"
+        @update:model-value="handleShowCompleted"
       ></v-checkbox>
     </div>
     <v-overlay
@@ -138,16 +139,19 @@ export default defineComponent({
       presenter.loadDataToView();
     };
     const handleAddTodo = () => {
-      presenter.handleChanges(showTodoForm.value);
+      presenter.handleChanges();
     };
     const handleEditTodo = () => {
-      presenter.handleChanges(showEditForm.value);
+      presenter.handleChanges();
     };
     const handleCompletedTodo = (todo: object) => {
       presenter.todoCompleted(todo);
     };
     const handleDeletedTodo = (todo: object) => {
       presenter.removeTodo(todo);
+    };
+    const handleShowCompleted = () => {
+      presenter.handleChanges();
     };
     return {
       presenter,
@@ -168,6 +172,7 @@ export default defineComponent({
       handleEditTodo,
       handleCompletedTodo,
       handleDeletedTodo,
+      handleShowCompleted,
     };
   },
   components: { AddTodoForm, EditTodoForm },

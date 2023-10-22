@@ -22,12 +22,10 @@ export class TodosListPresenter {
       console.log(error);
     }
   }
-  public handleChanges(showForm = false) {
-    if (!showForm) {
-      this.view.filteredTodos = this.getFilteredTodos();
-      this.view.displayedTodos = this.getDisplayedTodos();
-      this.view.length = this.calcLength();
-    }
+  public handleChanges() {
+    this.view.filteredTodos = this.getFilteredTodos();
+    this.view.displayedTodos = this.getDisplayedTodos();
+    this.view.length = this.calcLength();
   }
   public getFilteredTodos(): Array<{
     id: number;
